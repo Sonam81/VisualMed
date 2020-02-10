@@ -21,7 +21,7 @@ import java.util.Locale;
 
 public class AddMedicineDose extends AppCompatActivity {
 
-    private TextToSpeech myTTS;
+    TtsService ttsService;
     private SpeechRecognizer mySpeechRecognizer;
     private EditText add_medicine_dose_tf;
     private Button add_medicine_dose_button;
@@ -52,7 +52,7 @@ public class AddMedicineDose extends AppCompatActivity {
 
 
         initializeSpeechRecognizer();
-        initializeTextToSpeech();
+        //initializeTextToSpeech();
 
 
     }
@@ -115,34 +115,34 @@ public class AddMedicineDose extends AppCompatActivity {
     public void processResult(String command) {
         command = command.toLowerCase();
         add_medicine_dose_tf.setText(command);
-        speak(command);
+        ttsService.speak(command);
         Log.i("medicine_dose",command);
         Log.i("medicine_name", medicine_name);
     }
 
-    public void initializeTextToSpeech() {
-        myTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(myTTS.getEngines().size() == 0){
-                    Toast.makeText(AddMedicineDose.this,"There is no TTS in this device.",Toast.LENGTH_LONG).show();
-                    finish();
-                } else{
-                    myTTS.setLanguage(Locale.US);
-                }
-            }
-        });
-
-    }
-
-    public void speak(String message){
-        if(Build.VERSION.SDK_INT >= 21){
-            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
-        }
-        else{
-            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null);
-        }
-    }
+//    public void initializeTextToSpeech() {
+//        myTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+//            @Override
+//            public void onInit(int status) {
+//                if(myTTS.getEngines().size() == 0){
+//                    Toast.makeText(AddMedicineDose.this,"There is no TTS in this device.",Toast.LENGTH_LONG).show();
+//                    finish();
+//                } else{
+//                    myTTS.setLanguage(Locale.US);
+//                }
+//            }
+//        });
+//
+//    }
+//
+//    public void speak(String message){
+//        if(Build.VERSION.SDK_INT >= 21){
+//            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
+//        }
+//        else{
+//            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null);
+//        }
+//    }
 
 
 }

@@ -3,12 +3,10 @@ package com.example.visualmed;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
-import android.speech.tts.TextToSpeech;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -17,21 +15,21 @@ import android.widget.Toast;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextToSpeech textToSpeech;
     private SpeechRecognizer mySpeechRecognizer;
     public static final String EXTRA_MESSAGE = "com.example.visualmed.extra.MESSAGE";
-
+    TtsService ttsService;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //ttsService.speak("Welcome. Please tap on the screen and command the operation.");
+
         Button but = findViewById(R.id.button);
         but.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -41,26 +39,26 @@ public class MainActivity extends AppCompatActivity {
                 mySpeechRecognizer.startListening(intent);
             }
         });
-
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS) {
-                    int ttsLang = textToSpeech.setLanguage(Locale.US);
-
-                    if (ttsLang == TextToSpeech.LANG_MISSING_DATA
-                            || ttsLang == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.e("TTS", "The Language is not supported!");
-                    } else {
-                        Log.i("TTS", "Language Supported.");
-                    }
-                    Log.i("TTS", "Initialization success.");
-                    speak("Welcome. Please tap on the screen and command the operation.");
-                } else {
-                    Toast.makeText(getApplicationContext(), "TTS Initialization failed!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//
+//        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+//            @Override
+//            public void onInit(int status) {
+//                if (status == TextToSpeech.SUCCESS) {
+//                    int ttsLang = textToSpeech.setLanguage(Locale.US);
+//
+//                    if (ttsLang == TextToSpeech.LANG_MISSING_DATA
+//                            || ttsLang == TextToSpeech.LANG_NOT_SUPPORTED) {
+//                        Log.e("TTS", "The Language is not supported!");
+//                    } else {
+//                        Log.i("TTS", "Language Supported.");
+//                    }
+//                    Log.i("TTS", "Initialization success.");
+//                    speak("Welcome. Please tap on the screen and command the operation.");
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "TTS Initialization failed!", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
         initializeSpeechRecognizer();
 
     }
@@ -78,15 +76,15 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 //    }
-
-    public void speak(String message){
-        if(Build.VERSION.SDK_INT >= 21){
-            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
-        }
-        else{
-            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null);
-        }
-    }
+//
+//    public void speak(String message){
+//        if(Build.VERSION.SDK_INT >= 21){
+//            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
+//        }
+//        else{
+//            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null);
+//        }
+//    }
 
     public void initializeSpeechRecognizer(){
         if(SpeechRecognizer.isRecognitionAvailable(this)){
@@ -149,16 +147,17 @@ public class MainActivity extends AppCompatActivity {
 
         if(command.contains("add")){
             if(command.contains("medicines") || command.contains("medicine")){
-                speak("You have selected to add medicine.");
-                //Intent intent = new Intent(this,AddMedicine.class);
-                //intent.putExtra(EXTRA_MESSAGE,"Add Medicine");
-                //startActivity(intent);
+                ttsService.speak("You have selected to add medicine.");
+                Intent intent = new Intent(this,AddMedicine.class);
+                intent.putExtra(EXTRA_MESSAGE,"Add Medicine");
+                startActivity(intent);
 
             }
 
+
         } else if(command.contains("delete")){
             if(command.contains("medicines") || command.contains("medicine")){
-                speak("Delete Medicine Selected.");
+                ttsService.speak("Delete Medicine Selected.");
                 Intent intent = new Intent(this,ManageMedicineActivity.class);
                 intent.putExtra(EXTRA_MESSAGE,"Delete Medicine");
                 startActivity(intent);
@@ -174,20 +173,20 @@ public class MainActivity extends AppCompatActivity {
             if(command.contains("time")){
                 Date now = new Date();
                 String time = DateUtils.formatDateTime(this, now.getTime(), DateUtils.FORMAT_SHOW_TIME);
-                speak("Current Time is "+ time);
+                ttsService.speak("Current Time is "+ time);
             }
         } else{
-            speak("Please repeat the command again.");
+            ttsService.speak("Please repeat the command again.");
         }
 
     }
+
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (textToSpeech != null) {
-            textToSpeech.stop();
-            textToSpeech.shutdown();
-        }
+    protected void onPause() {
+        super.onPause();
+        Toast.makeText(getApplicationContext(), "onPause called", Toast.LENGTH_LONG).show();
     }
+
+
 }

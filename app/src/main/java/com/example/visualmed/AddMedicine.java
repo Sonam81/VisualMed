@@ -3,25 +3,20 @@ package com.example.visualmed;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
-
 import java.util.List;
-import java.util.Locale;
 
 
 public class AddMedicine extends AppCompatActivity {
 
-    private TextToSpeech myTTS;
+    TtsService ttsService;
     private SpeechRecognizer mySpeechRecognizer;
     private EditText add_medicine_name_tf;
     private Button add_medicine_name_button;
@@ -56,7 +51,7 @@ public class AddMedicine extends AppCompatActivity {
         });
 
         initializeSpeechRecognizer();
-        initializeTextToSpeech();
+        //initializeTextToSpeech();
     }
 
 
@@ -119,33 +114,33 @@ public class AddMedicine extends AppCompatActivity {
     public void processResult(String command) {
         command = command.toLowerCase();
         add_medicine_name_tf.setText(command);
-        speak(command);
+        ttsService.speak(command);
         Log.i("medicine_name",medicine_name);
     }
-
-    public void initializeTextToSpeech() {
-        myTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(myTTS.getEngines().size() == 0){
-                    Toast.makeText(AddMedicine.this,"There is no TTS in this device.",Toast.LENGTH_LONG).show();
-                    finish();
-                } else{
-                    myTTS.setLanguage(Locale.US);
-                }
-            }
-        });
-
-    }
-
-    public void speak(String message){
-        if(Build.VERSION.SDK_INT >= 21){
-            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
-        }
-        else{
-            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null);
-        }
-    }
+//
+//    public void initializeTextToSpeech() {
+//        myTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+//            @Override
+//            public void onInit(int status) {
+//                if(myTTS.getEngines().size() == 0){
+//                    Toast.makeText(AddMedicine.this,"There is no TTS in this device.",Toast.LENGTH_LONG).show();
+//                    finish();
+//                } else{
+//                    myTTS.setLanguage(Locale.US);
+//                }
+//            }
+//        });
+//
+//    }
+//
+//    public void speak(String message){
+//        if(Build.VERSION.SDK_INT >= 21){
+//            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
+//        }
+//        else{
+//            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null);
+//        }
+//    }
 
 
 }
