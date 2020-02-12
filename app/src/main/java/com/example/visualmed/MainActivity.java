@@ -2,8 +2,11 @@ package com.example.visualmed;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -12,6 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.parse.ParseInstallation;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private SpeechRecognizer mySpeechRecognizer;
     public static final String EXTRA_MESSAGE = "com.example.visualmed.extra.MESSAGE";
     TtsService ttsService;
+    boolean bounded;
 
 
     @Override
@@ -39,52 +45,39 @@ public class MainActivity extends AppCompatActivity {
                 mySpeechRecognizer.startListening(intent);
             }
         });
-//
-//        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-//            @Override
-//            public void onInit(int status) {
-//                if (status == TextToSpeech.SUCCESS) {
-//                    int ttsLang = textToSpeech.setLanguage(Locale.US);
-//
-//                    if (ttsLang == TextToSpeech.LANG_MISSING_DATA
-//                            || ttsLang == TextToSpeech.LANG_NOT_SUPPORTED) {
-//                        Log.e("TTS", "The Language is not supported!");
-//                    } else {
-//                        Log.i("TTS", "Language Supported.");
-//                    }
-//                    Log.i("TTS", "Initialization success.");
-//                    speak("Welcome. Please tap on the screen and command the operation.");
-//                } else {
-//                    Toast.makeText(getApplicationContext(), "TTS Initialization failed!", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
+
+        ParseInstallation.getCurrentInstallation().saveInBackground();
+
         initializeSpeechRecognizer();
 
     }
-//
-//    public void initializeTextToSpeech() {
-//        myTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-//            @Override
-//            public void onInit(int status) {
-//                if(myTTS.getEngines().size() == 0){
-//                    Toast.makeText(MainActivity.this,"There is no TTS in this device.",Toast.LENGTH_LONG).show();
-//                    finish();
-//                } else{
-//                    myTTS.setLanguage(Locale.US);
-//                }
-//            }
-//        });
-//    }
-//
-//    public void speak(String message){
-//        if(Build.VERSION.SDK_INT >= 21){
-//            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
-//        }
-//        else{
-//            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null);
-//        }
-//    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Intent mIntent = new Intent(this, TtsService.class);
+        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+    }
+
+    ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Toast.makeText(MainActivity.this, "Service is disconnected", Toast.LENGTH_LONG).show();
+            bounded = false;
+            ttsService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Toast.makeText(MainActivity.this, "Service is CConnected", Toast.LENGTH_LONG).show();
+            bounded = true;
+            TtsService.LocalBinder mLocalBinder = (TtsService.LocalBinder)service;
+            ttsService = mLocalBinder.getServerInstance();
+        }
+    };
+
+
 
     public void initializeSpeechRecognizer(){
         if(SpeechRecognizer.isRecognitionAvailable(this)){

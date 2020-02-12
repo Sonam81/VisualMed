@@ -2,8 +2,11 @@ package com.example.visualmed;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -11,16 +14,22 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.parse.Parse;
+import com.parse.ParseObject;
+
 import java.util.List;
 
 
 public class AddMedicine extends AppCompatActivity {
 
     TtsService ttsService;
+    boolean bounded;
     private SpeechRecognizer mySpeechRecognizer;
     private EditText add_medicine_name_tf;
     private Button add_medicine_name_button;
-    private String medicine_name = "";
+    private String medicine_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +58,43 @@ public class AddMedicine extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         initializeSpeechRecognizer();
-        //initializeTextToSpeech();
     }
 
 
+    public void addToParse(){
+//        ParseObject gameScore = new ParseObject("GameScore");
+//        gameScore.put("score", 1337);
+//        gameScore.put("playerName", "Sean Plott");
+//        gameScore.put("cheatMode", false);
+//        gameScore.saveInBackground();
+        Log.i("BaSS","Method called");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Intent mIntent = new Intent(this, TtsService.class);
+        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+    }
+
+    ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Toast.makeText(AddMedicine.this, "Service is disconnected add medicine", Toast.LENGTH_LONG).show();
+            bounded = false;
+            ttsService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Toast.makeText(AddMedicine.this, "Service is CConnected in add medicine page", Toast.LENGTH_LONG).show();
+            bounded = true;
+            TtsService.LocalBinder mLocalBinder = (TtsService.LocalBinder)service;
+            ttsService = mLocalBinder.getServerInstance();
+        }
+    };
 
     public void initializeSpeechRecognizer(){
         if(SpeechRecognizer.isRecognitionAvailable(this)){
@@ -113,34 +153,12 @@ public class AddMedicine extends AppCompatActivity {
 
     public void processResult(String command) {
         command = command.toLowerCase();
+        medicine_name = command;
         add_medicine_name_tf.setText(command);
         ttsService.speak(command);
         Log.i("medicine_name",medicine_name);
     }
-//
-//    public void initializeTextToSpeech() {
-//        myTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-//            @Override
-//            public void onInit(int status) {
-//                if(myTTS.getEngines().size() == 0){
-//                    Toast.makeText(AddMedicine.this,"There is no TTS in this device.",Toast.LENGTH_LONG).show();
-//                    finish();
-//                } else{
-//                    myTTS.setLanguage(Locale.US);
-//                }
-//            }
-//        });
-//
-//    }
-//
-//    public void speak(String message){
-//        if(Build.VERSION.SDK_INT >= 21){
-//            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
-//        }
-//        else{
-//            myTTS.speak(message, TextToSpeech.QUEUE_FLUSH,null);
-//        }
-//    }
-
 
 }
+
+

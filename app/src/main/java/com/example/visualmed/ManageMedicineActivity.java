@@ -31,8 +31,11 @@ public class ManageMedicineActivity extends Activity {
         button = (Button) findViewById(R.id.b);
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                mServer.speak("Started form the buttom");
+                //mServer.speak("Started form the bottom");
                 text.setText(mServer.getTime());
+                mServer.speak("Wazzz UP");
+                Intent intent = new Intent(ManageMedicineActivity.this, Random.class);
+                startActivity(intent);
             }
         });
     }
@@ -68,6 +71,14 @@ public class ManageMedicineActivity extends Activity {
         if(mBounded) {
             unbindService(mConnection);
             mBounded = false;
+            Toast.makeText(ManageMedicineActivity.this,"Service is disconnected due to destroy",Toast.LENGTH_LONG).show();
         }
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Toast.makeText(ManageMedicineActivity.this,"Service is .... due to stop",Toast.LENGTH_LONG).show();
+        }
+
 }
