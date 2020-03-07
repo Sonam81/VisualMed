@@ -1,84 +1,244 @@
 package com.example.visualmed;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
 
-import com.example.visualmed.TtsService.LocalBinder;
+import androidx.room.Room;
 
 public class ManageMedicineActivity extends Activity {
 
-    boolean mBounded;
-    TtsService mServer;
-    TextView text;
-    Button button;
+    public static final int REQUEST_CODE=101;
+    public static MyAppDatabase myAppDatabase;
+    private SpeechRecognizer mySpeechRecognizer;
+    private ListView mListView;
+    private ChatMessageAdapter mAdapter;
+    List<String> speeches = new ArrayList<>();
+    List<String> medicine_time = new ArrayList<>();
+    List<MedicineTime> store_medicine_time = new ArrayList<>();
+    boolean name_set = false;
+    boolean time_set = false;
+
+    public String medicine_name = new String();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_medicine);
+        myAppDatabase = Room.databaseBuilder(getApplicationContext(),MyAppDatabase.class,"medicineDB").allowMainThreadQueries().fallbackToDestructiveMigration().build();
+        mListView = (ListView) findViewById(R.id.listView);
+        mAdapter = new ChatMessageAdapter(this, new ArrayList<ChatMessage>());
+        mListView.setAdapter(mAdapter);
+        initializeSpeechRecognizer();
+        mimicOtherMessage("Welcome! Please tap and speak the name of medicine using command medicine name");
+        mListView.setSelection(mAdapter.getCount() - 1);
 
-        text = (TextView)findViewById(R.id.tv);
-        button = (Button) findViewById(R.id.b);
-        button.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                //mServer.speak("Started form the bottom");
-                text.setText(mServer.getTime());
-                mServer.speak("Wazzz UP");
-                Intent intent = new Intent(ManageMedicineActivity.this, Random.class);
-                startActivity(intent);
+        //
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+//        Intent intent = new Intent(this, AlertReciever.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, System.currentTimeMillis() + AlarmManager.INTERVAL_HOUR, AlarmManager.INTERVAL_HOUR, pendingIntent);
+
+
+    }
+
+    private void sendMessage(String message) {
+        ChatMessage chatMessage = new ChatMessage(message, true, false);
+        mAdapter.add(chatMessage);
+
+        //mimicOtherMessage(message);
+    }
+
+    private void mimicOtherMessage(String message) {
+        ChatMessage chatMessage = new ChatMessage(message, false, false);
+        mAdapter.add(chatMessage);
+    }
+
+    private void sendMessage() {
+        ChatMessage chatMessage = new ChatMessage(null, true, true);
+        mAdapter.add(chatMessage);
+
+        mimicOtherMessage();
+    }
+
+    private void mimicOtherMessage() {
+        ChatMessage chatMessage = new ChatMessage(null, false, true);
+        mAdapter.add(chatMessage);
+    }
+
+    public void clickLayout(View view) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
+        mySpeechRecognizer.startListening(intent);
+    }
+
+
+    public void initializeSpeechRecognizer() {
+        if (SpeechRecognizer.isRecognitionAvailable(this)) {
+            mySpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            mySpeechRecognizer.setRecognitionListener(new RecognitionListener() {
+                @Override
+                public void onReadyForSpeech(Bundle params) {
+
+                }
+
+                @Override
+                public void onBeginningOfSpeech() {
+
+                }
+
+                @Override
+                public void onRmsChanged(float rmsdB) {
+
+                }
+
+                @Override
+                public void onBufferReceived(byte[] buffer) {
+
+                }
+
+                @Override
+                public void onEndOfSpeech() {
+
+                }
+
+                @Override
+                public void onError(int error) {
+
+                }
+
+                @Override
+                public void onResults(Bundle bundle) {
+                    List<String> results = bundle.getStringArrayList(
+                            SpeechRecognizer.RESULTS_RECOGNITION
+                    );
+                    processResult(results.get(0));
+                }
+
+                @Override
+                public void onPartialResults(Bundle partialResults) {
+
+                }
+
+                @Override
+                public void onEvent(int eventType, Bundle params) {
+
+                }
+            });
+        }
+    }
+
+    public void processResult(String command) {
+        command = command.toLowerCase();
+        sendMessage(command);
+        speeches.add(command);
+        replies(command);
+    }
+
+    public void replies(String obtainedString){
+
+        int stringLength = obtainedString.length();
+        if(obtainedString.startsWith("medicine name") && !time_set){
+            medicine_name = obtainedString.substring(13, stringLength - 1);
+            name_set = true;
+            mimicOtherMessage("Your medicine name is " + medicine_name + ". Tap and enter the time to take medicine.");
+            mListView.setSelection(mAdapter.getCount() - 1);
+
+        }
+
+        else if(obtainedString.contains("medicine") && !obtainedString.contains("name")){
+            if(!name_set && obtainedString.contains("delete") || obtainedString.contains("remove")){
+
+                ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine("appl");
+                Toast.makeText(ManageMedicineActivity.this, "Deleted",Toast.LENGTH_LONG);
+
+            } else if(!name_set && obtainedString.contains("view") || obtainedString.contains("display") || obtainedString.contains("read")){
+//                direct to read medicine page
+                Intent readMedicineActivity = new Intent(ManageMedicineActivity.this, ReadMedicine.class);
+                startActivity(readMedicineActivity);
+
+            } else if(!name_set && obtainedString.contains("add")){
+                //cannot perform task
+                mimicOtherMessage("You are currently on add medicine page.");
+                mListView.setSelection(mAdapter.getCount() - 1);
             }
-        });
+            else if(name_set){
+                //Advise to end the process first
+                mimicOtherMessage("Please end the process using command \"End Process\"");
+                mListView.setSelection(mAdapter.getCount() - 1);
+            }
+            else{
+                mimicOtherMessage("Unrecognized command");
+                mListView.setSelection(mAdapter.getCount() - 1);
+            }
+        }
+
+
+        else if(obtainedString.contains("a.m.") || obtainedString.contains("p.m")){
+            if(name_set){
+                medicine_time.add(obtainedString);
+                MedicineTime medTime = new MedicineTime();
+                medTime.setMedicineTime(obtainedString);
+                store_medicine_time.add(medTime);
+
+                mimicOtherMessage("Time added as " + obtainedString + ". Add more time by tapping.\n Command \"save\" to save medicine.");
+                mListView.setSelection(mAdapter.getCount() - 1);
+                time_set = true;
+            }
+            else{
+                mimicOtherMessage("Please add medicine name using command medicine name");
+                mListView.setSelection(mAdapter.getCount() - 1);
+            }
+        }
+
+        else if(obtainedString.contains("save")){
+            if(name_set && time_set){
+                Medicine medicine = new Medicine();
+                medicine.setMedicineName(medicine_name);
+                medicine.setMedicineTimes(store_medicine_time);
+                mimicOtherMessage("Medicine Name :"+ medicine_name + "\n Medicine Time: " + medicine_time.get(0));
+                mListView.setSelection(mAdapter.getCount() - 1);
+
+                ManageMedicineActivity.myAppDatabase.medicineDAO().insertMedicineWithTime(medicine);
+                Toast.makeText(getApplicationContext(),"Insert Successfull!",Toast.LENGTH_LONG).show();
+
+            }
+            else if(!name_set){
+                mimicOtherMessage("Please enter name and time first.");
+                mListView.setSelection(mAdapter.getCount() - 1);
+            }
+            else if(!time_set){
+                mimicOtherMessage("Please set the time first.");
+                mListView.setSelection(mAdapter.getCount() - 1);
+            }
+        }
+        else if(obtainedString.contains("finish")){
+            //Direct to home page
+        }
+
+        else{
+            mimicOtherMessage("Unrecognized Command");
+            mListView.setSelection(mAdapter.getCount() - 1);
+        }
+
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        Intent mIntent = new Intent(this, TtsService.class);
-        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
-    }
-
-    ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Toast.makeText(ManageMedicineActivity.this, "Service is disconnected", Toast.LENGTH_LONG).show();
-            mBounded = false;
-            mServer = null;
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Toast.makeText(ManageMedicineActivity.this, "Service is connected", Toast.LENGTH_LONG).show();
-            mBounded = true;
-            LocalBinder mLocalBinder = (LocalBinder)service;
-            mServer = mLocalBinder.getServerInstance();
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(mBounded) {
-            unbindService(mConnection);
-            mBounded = false;
-            Toast.makeText(ManageMedicineActivity.this,"Service is disconnected due to destroy",Toast.LENGTH_LONG).show();
-        }
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        Toast.makeText(ManageMedicineActivity.this,"Service is .... due to stop",Toast.LENGTH_LONG).show();
-        }
 
 }

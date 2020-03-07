@@ -7,19 +7,18 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-
-
-
     <application
-
         android:name=".App"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/icon2"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".Random"></activity>
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+
+        <activity android:name=".DeleteMedicine" />
+        <activity android:name=".ReadMedicine" />
         <activity android:name=".MainActivity" />
         <activity android:name=".AddMedicineTime" />
         <activity android:name=".AddMedicineDose" />
@@ -39,6 +38,7 @@
         </activity>
 
         <service android:name=".TtsService" />
+
         <meta-data
             android:name="com.parse.SERVER_URL"
             android:value="@string/back4app_server_url" />
@@ -48,8 +48,6 @@
         <meta-data
             android:name="com.parse.CLIENT_KEY"
             android:value="@string/back4app_client_key" />
-
     </application>
-
 
 </manifest>

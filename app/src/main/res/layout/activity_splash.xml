@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:background="@color/colorPrimary">
+    android:gravity="center">
 
     <ImageView
-        android:id="@+id/logo_id"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_centerInParent="true"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/logo_id"
-        android:layout_centerHorizontal="true"
-        android:text="Splash Screen"
-        android:textSize="30dp"
-        android:textColor="@color/colorBlue"/>
-
+        android:id="@+id/imageView3"
+        android:layout_width="407dp"
+        android:layout_height="225dp"
+        android:contentDescription="@string/loading"
+        android:src="@drawable/logo3" />
 </RelativeLayout>

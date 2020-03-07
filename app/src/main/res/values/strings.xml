@@ -8,7 +8,10 @@
     <string name="back4app_app_id">85uIrDa6dWEGKXuwemQbGotVQUSw8HQ9JAhke9eG</string>
     <string name="back4app_client_key">EPWrbDSVWjhAybeGzO43OxMsI17Zz7NiRLHqklAc</string>
 
+    <string name="input_placeholder">Write a message</string>
 
     <string name="add_medicine_name_textbox_content_desc"> Add Medicine Name</string>
     <string name="add_medicine_button_content_desc">Confirm and Add Medicine</string>
+
+    <string name="loading">Loading</string>
 </resources>

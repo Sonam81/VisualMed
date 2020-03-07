@@ -141,10 +141,9 @@ public class MainActivity extends AppCompatActivity {
         if(command.contains("add")){
             if(command.contains("medicines") || command.contains("medicine")){
                 ttsService.speak("You have selected to add medicine.");
-                Intent intent = new Intent(this,AddMedicine.class);
+                Intent intent = new Intent(this,ManageMedicineActivity.class);
                 intent.putExtra(EXTRA_MESSAGE,"Add Medicine");
                 startActivity(intent);
-
             }
 
 
