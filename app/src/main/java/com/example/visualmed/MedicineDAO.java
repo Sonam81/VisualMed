@@ -24,7 +24,11 @@ public abstract class MedicineDAO {
     public abstract void insertMedicineTime(List<MedicineTime> medicineTimes);
 
     @Delete
-    public abstract void deleteMedicineWithTimes(Medicine medicine);
+    public abstract void deleteMedicine(Medicine medicine);
+
+    @Delete
+    public abstract void deleteMedicineTime(MedicineTime medicineTime);
+
 
     @Transaction
     public void insertMedicineWithTime(Medicine medicine) {
@@ -37,11 +41,18 @@ public abstract class MedicineDAO {
     }
 
     @Transaction
-    @Query("Select * from medicine_time Where nameOfMedicine =:medName")
-    public abstract List<MedicineTime> getMedicineTimes(String medName);
+    public void deleteMedicineWithTime(Medicine medicine){
+        List<MedicineTime> medicineTimes = medicine.getMedicineTimes();
+        for (int i = 0; i < medicineTimes.size(); i++) {
+            deleteMedicineTime(medicine.getMedicineTimes().get(i));
+        }
+        deleteMedicine(medicine);
+    }
 
     @Transaction
-    @Query("Delete From medicines where medicineName =:medicineName")
-    public abstract void deleteMedicine(String medicineName);
+    @Query("Select * from medicines where medicineName = 'appl' ")
+    public abstract List<MedicineWithTime> findMedicine();
+
+
 
 }

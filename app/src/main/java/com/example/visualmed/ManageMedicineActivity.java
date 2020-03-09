@@ -166,9 +166,15 @@ public class ManageMedicineActivity extends Activity {
 
         else if(obtainedString.contains("medicine") && !obtainedString.contains("name")){
             if(!name_set && obtainedString.contains("delete") || obtainedString.contains("remove")){
+                List<MedicineWithTime> med = ManageMedicineActivity.myAppDatabase.medicineDAO().getAll();
+                int size = med.size() - 1;
+                Medicine medicine = med.get(size).getMedicine();
+                String medName = medicine.getMedicineName();
+                Log.i("Delete",medName);
+                ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine(medicine);
+                mListView.setSelection(mAdapter.getCount() - 1);
 
-                ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine("appl");
-                Toast.makeText(ManageMedicineActivity.this, "Deleted",Toast.LENGTH_LONG);
+//                 Toast.makeText(getApplicationContext(), "Deleted",Toast.LENGTH_LONG);
 
             } else if(!name_set && obtainedString.contains("view") || obtainedString.contains("display") || obtainedString.contains("read")){
 //                direct to read medicine page
