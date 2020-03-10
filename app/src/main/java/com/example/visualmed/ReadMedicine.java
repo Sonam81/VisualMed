@@ -39,6 +39,7 @@ public class ReadMedicine extends AppCompatActivity {
                 medTimes = medTimes + medicineWithTimes.get(i).getMedicineTimes().get(j).getMedicineTime()+"\n";
             }
             medicineDetails.add(new MedicineDetail(medicineWithTimes.get(i).getMedicine().getMedicineName(),medTimes));
+            Log.i("name",medTimes);
 
         }
         MedicineDisplayAdapter adapter = new MedicineDisplayAdapter(this, medicineDetails);

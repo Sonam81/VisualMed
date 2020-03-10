@@ -157,26 +157,22 @@ public class ManageMedicineActivity extends Activity {
 
         int stringLength = obtainedString.length();
         if(obtainedString.startsWith("medicine name") && !time_set){
-            medicine_name = obtainedString.substring(13, stringLength - 1);
+            medicine_name = obtainedString.substring(13, stringLength);
             name_set = true;
             mimicOtherMessage("Your medicine name is " + medicine_name + ". Tap and enter the time to take medicine.");
             mListView.setSelection(mAdapter.getCount() - 1);
 
-        }
+        } else if(obtainedString.startsWith("delete medicine") && !name_set){
+            String delMedicine = obtainedString.substring(15, stringLength);
+            Log.i("delete",delMedicine);
+            List<MedicineWithTime> medDetail = ManageMedicineActivity.myAppDatabase.medicineDAO().findMedicine(delMedicine);
+            Medicine medicine = medDetail.get(0).getMedicine();
+            ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine(medicine);
+            mimicOtherMessage(delMedicine + " is deleted.");
+            mListView.setSelection(mAdapter.getCount() - 1);
 
-        else if(obtainedString.contains("medicine") && !obtainedString.contains("name")){
-            if(!name_set && obtainedString.contains("delete") || obtainedString.contains("remove")){
-                List<MedicineWithTime> med = ManageMedicineActivity.myAppDatabase.medicineDAO().getAll();
-                int size = med.size() - 1;
-                Medicine medicine = med.get(size).getMedicine();
-                String medName = medicine.getMedicineName();
-                Log.i("Delete",medName);
-                ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine(medicine);
-                mListView.setSelection(mAdapter.getCount() - 1);
-
-//                 Toast.makeText(getApplicationContext(), "Deleted",Toast.LENGTH_LONG);
-
-            } else if(!name_set && obtainedString.contains("view") || obtainedString.contains("display") || obtainedString.contains("read")){
+        } else if(obtainedString.contains("medicine") && !obtainedString.contains("name") && !obtainedString.contains("delete")){
+            if(!name_set && obtainedString.contains("view") || obtainedString.contains("display") || obtainedString.contains("read")){
 //                direct to read medicine page
                 Intent readMedicineActivity = new Intent(ManageMedicineActivity.this, ReadMedicine.class);
                 startActivity(readMedicineActivity);
@@ -185,13 +181,8 @@ public class ManageMedicineActivity extends Activity {
                 //cannot perform task
                 mimicOtherMessage("You are currently on add medicine page.");
                 mListView.setSelection(mAdapter.getCount() - 1);
-            }
-            else if(name_set){
-                //Advise to end the process first
-                mimicOtherMessage("Please end the process using command \"End Process\"");
-                mListView.setSelection(mAdapter.getCount() - 1);
-            }
-            else{
+
+            } else{
                 mimicOtherMessage("Unrecognized command");
                 mListView.setSelection(mAdapter.getCount() - 1);
             }
