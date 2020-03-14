@@ -22,6 +22,7 @@ public class ReadMedicine extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_medicine);
 
+        //get recycler view by id
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -35,15 +36,12 @@ public class ReadMedicine extends AppCompatActivity {
         for (int i = 0; i < medicineWithTimes.size();i++) {
             String medTimes = "";
             for (int j = 0; j < medicineWithTimes.get(i).getMedicineTimes().size(); j++){
-
                 medTimes = medTimes + medicineWithTimes.get(i).getMedicineTimes().get(j).getMedicineTime()+"\n";
             }
-            medicineDetails.add(new MedicineDetail(medicineWithTimes.get(i).getMedicine().getMedicineName(),medTimes));
-            Log.i("name",medTimes);
-
+            medicineDetails.add(new MedicineDetail(medTimes,medicineWithTimes.get(i).getMedicine().getMedicineName()));
         }
+        //create adapter and display all the details in the card layout
         MedicineDisplayAdapter adapter = new MedicineDisplayAdapter(this, medicineDetails);
-
         recyclerView.setAdapter(adapter);
     }
 

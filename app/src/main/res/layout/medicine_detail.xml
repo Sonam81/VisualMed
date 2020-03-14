@@ -16,7 +16,7 @@
 
             <TextView
                 android:id="@+id/textMedicineName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:text="Medicine Name Sample"
@@ -26,7 +26,7 @@
 
             <TextView
                 android:id="@+id/textMedicineTime"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/textMedicineName"
                 android:layout_marginLeft="5dp"

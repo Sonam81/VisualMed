@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "581897949539",
+    "firebase_url": "https://visualmed-972dd.firebaseio.com",
+    "project_id": "visualmed-972dd",
+    "storage_bucket": "visualmed-972dd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581897949539:android:bc6faa16cc1c6b5736c356",
+        "android_client_info": {
+          "package_name": "com.example.visualmed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581897949539-osubjeue71ifsfvorj0to4sb33bo0a9r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5BEalIE7VNKJrd_sDTvsVj4WCcM3w5bM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "581897949539-osubjeue71ifsfvorj0to4sb33bo0a9r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

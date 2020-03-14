@@ -6,11 +6,14 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,33 +23,41 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.room.Room;
 
 public class ManageMedicineActivity extends Activity {
 
-    public static final int REQUEST_CODE=101;
     public static MyAppDatabase myAppDatabase;
     private SpeechRecognizer mySpeechRecognizer;
     private ListView mListView;
     private ChatMessageAdapter mAdapter;
+    private TextToSpeech textToSpeech;
+    Intent speechIntent;
     List<String> speeches = new ArrayList<>();
     List<String> medicine_time = new ArrayList<>();
     List<MedicineTime> store_medicine_time = new ArrayList<>();
     boolean name_set = false;
     boolean time_set = false;
 
-    public String medicine_name = new String();
+    public String medicine_name = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_medicine);
         myAppDatabase = Room.databaseBuilder(getApplicationContext(),MyAppDatabase.class,"medicineDB").allowMainThreadQueries().fallbackToDestructiveMigration().build();
-        mListView = (ListView) findViewById(R.id.listView);
+        mListView = findViewById(R.id.listView);
         mAdapter = new ChatMessageAdapter(this, new ArrayList<ChatMessage>());
         mListView.setAdapter(mAdapter);
+        initializeTextToSpeech();
         initializeSpeechRecognizer();
+
+        speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
+
         mimicOtherMessage("Welcome! Please tap and speak the name of medicine using command medicine name");
         mListView.setSelection(mAdapter.getCount() - 1);
 
@@ -59,6 +70,15 @@ public class ManageMedicineActivity extends Activity {
 
     }
 
+    public void speak(String message){
+        if(Build.VERSION.SDK_INT >= 21){
+            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);
+        }
+        else{
+            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null);
+        }
+    }
+
     private void sendMessage(String message) {
         ChatMessage chatMessage = new ChatMessage(message, true, false);
         mAdapter.add(chatMessage);
@@ -69,6 +89,7 @@ public class ManageMedicineActivity extends Activity {
     private void mimicOtherMessage(String message) {
         ChatMessage chatMessage = new ChatMessage(message, false, false);
         mAdapter.add(chatMessage);
+        speak(message);
     }
 
     private void sendMessage() {
@@ -84,12 +105,32 @@ public class ManageMedicineActivity extends Activity {
     }
 
     public void clickLayout(View view) {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
-        mySpeechRecognizer.startListening(intent);
+        if(textToSpeech != null)
+            textToSpeech.stop();
+        mySpeechRecognizer.startListening(speechIntent);
     }
 
+    public void initializeTextToSpeech(){
+        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    int ttsLang = textToSpeech.setLanguage(Locale.US);
+
+                    if (ttsLang == TextToSpeech.LANG_MISSING_DATA
+                            || ttsLang == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e("TTS", "The Language is not supported!");
+                    } else {
+                        Log.i("TTS", "Language Supported.");
+                    }
+                    Log.i("TTS", "Initialization success.");
+                } else {
+                    Toast.makeText(getApplicationContext(), "TTS Initialization failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
 
     public void initializeSpeechRecognizer() {
         if (SpeechRecognizer.isRecognitionAvailable(this)) {
@@ -130,6 +171,7 @@ public class ManageMedicineActivity extends Activity {
                     List<String> results = bundle.getStringArrayList(
                             SpeechRecognizer.RESULTS_RECOGNITION
                     );
+                    assert results != null;
                     processResult(results.get(0));
                 }
 
@@ -166,9 +208,16 @@ public class ManageMedicineActivity extends Activity {
             String delMedicine = obtainedString.substring(15, stringLength);
             Log.i("delete",delMedicine);
             List<MedicineWithTime> medDetail = ManageMedicineActivity.myAppDatabase.medicineDAO().findMedicine(delMedicine);
-            Medicine medicine = medDetail.get(0).getMedicine();
-            ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine(medicine);
-            mimicOtherMessage(delMedicine + " is deleted.");
+            if (delMedicine.equals("")){
+                mimicOtherMessage("Mention the name of medicine after command 'Delete medicine'");
+            } else if(!medDetail.isEmpty()){
+                Medicine medicine = medDetail.get(0).getMedicine();
+                ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine(medicine);
+                mimicOtherMessage(delMedicine + " is deleted.");
+                Toast.makeText(getApplicationContext(),"Deleted.",Toast.LENGTH_LONG).show();
+            } else{
+                mimicOtherMessage(delMedicine + " is not found.");
+            }
             mListView.setSelection(mAdapter.getCount() - 1);
 
         } else if(obtainedString.contains("medicine") && !obtainedString.contains("name") && !obtainedString.contains("delete")){
@@ -189,21 +238,20 @@ public class ManageMedicineActivity extends Activity {
         }
 
 
-        else if(obtainedString.contains("a.m.") || obtainedString.contains("p.m")){
-            if(name_set){
+        else if(obtainedString.contains("a.m.") || obtainedString.contains("p.m") && name_set){
+            TimeValidator timeValidator = new TimeValidator();
+            boolean validate = timeValidator.validate(obtainedString);
+            if(validate){
                 medicine_time.add(obtainedString);
                 MedicineTime medTime = new MedicineTime();
                 medTime.setMedicineTime(obtainedString);
                 store_medicine_time.add(medTime);
-
                 mimicOtherMessage("Time added as " + obtainedString + ". Add more time by tapping.\n Command \"save\" to save medicine.");
-                mListView.setSelection(mAdapter.getCount() - 1);
                 time_set = true;
+            } else{
+                mimicOtherMessage("Please enter the valid time.");
             }
-            else{
-                mimicOtherMessage("Please add medicine name using command medicine name");
-                mListView.setSelection(mAdapter.getCount() - 1);
-            }
+            mListView.setSelection(mAdapter.getCount() - 1);
         }
 
         else if(obtainedString.contains("save")){
@@ -213,25 +261,20 @@ public class ManageMedicineActivity extends Activity {
                 medicine.setMedicineTimes(store_medicine_time);
                 mimicOtherMessage("Medicine Name :"+ medicine_name + "\n Medicine Time: " + medicine_time.get(0));
                 mListView.setSelection(mAdapter.getCount() - 1);
-
                 ManageMedicineActivity.myAppDatabase.medicineDAO().insertMedicineWithTime(medicine);
-                Toast.makeText(getApplicationContext(),"Insert Successfull!",Toast.LENGTH_LONG).show();
-
+                name_set = false;
+                time_set = false;
+                Toast.makeText(getApplicationContext(),"Insert Successfully!",Toast.LENGTH_LONG).show();
             }
             else if(!name_set){
                 mimicOtherMessage("Please enter name and time first.");
                 mListView.setSelection(mAdapter.getCount() - 1);
             }
-            else if(!time_set){
+            else {
                 mimicOtherMessage("Please set the time first.");
                 mListView.setSelection(mAdapter.getCount() - 1);
             }
-        }
-        else if(obtainedString.contains("finish")){
-            //Direct to home page
-        }
-
-        else{
+        } else{
             mimicOtherMessage("Unrecognized Command");
             mListView.setSelection(mAdapter.getCount() - 1);
         }
