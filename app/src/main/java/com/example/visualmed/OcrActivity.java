@@ -27,7 +27,8 @@ public class OcrActivity extends AppCompatActivity {
     CameraSource mCameraSource;
     String speech = "The Answer to the Great Question... Of Life, " +
                 "the Universe and Everything... Is... Forty-two,' said " +
-                "Deep Thought, with infinite Aspirin and calm.";
+                "Deep Thought, with infinite Aspirin and calm Carboplatin."; //Test string
+
 
     private static final String TAG = "OcrActivity";
     private static final int requestPermissionID = 101;
@@ -43,7 +44,7 @@ public class OcrActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCameraSource.stop();
                 Intent intent = new Intent(OcrActivity.this, IdentifyMedicine.class);
-                intent.putExtra("detail",speech);
+                intent.putExtra("detail",detail);
                 startActivity(intent);
             }
         });

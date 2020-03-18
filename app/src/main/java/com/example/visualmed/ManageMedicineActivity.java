@@ -1,30 +1,20 @@
 package com.example.visualmed;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import androidx.room.Room;
 
 public class ManageMedicineActivity extends Activity {
@@ -40,6 +30,11 @@ public class ManageMedicineActivity extends Activity {
     List<MedicineTime> store_medicine_time = new ArrayList<>();
     boolean name_set = false;
     boolean time_set = false;
+    boolean identifiedMedicine = false;
+    int stringLength;
+    String medicine_name_received = "";
+    String operation = "";
+
 
     public String medicine_name = "";
 
@@ -92,18 +87,6 @@ public class ManageMedicineActivity extends Activity {
         speak(message);
     }
 
-    private void sendMessage() {
-        ChatMessage chatMessage = new ChatMessage(null, true, true);
-        mAdapter.add(chatMessage);
-
-        mimicOtherMessage();
-    }
-
-    private void mimicOtherMessage() {
-        ChatMessage chatMessage = new ChatMessage(null, false, true);
-        mAdapter.add(chatMessage);
-    }
-
     public void clickLayout(View view) {
         if(textToSpeech != null)
             textToSpeech.stop();
@@ -137,34 +120,22 @@ public class ManageMedicineActivity extends Activity {
             mySpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
             mySpeechRecognizer.setRecognitionListener(new RecognitionListener() {
                 @Override
-                public void onReadyForSpeech(Bundle params) {
-
-                }
+                public void onReadyForSpeech(Bundle params) {}
 
                 @Override
-                public void onBeginningOfSpeech() {
-
-                }
+                public void onBeginningOfSpeech() {}
 
                 @Override
-                public void onRmsChanged(float rmsdB) {
-
-                }
+                public void onRmsChanged(float rmsdB) {}
 
                 @Override
-                public void onBufferReceived(byte[] buffer) {
-
-                }
+                public void onBufferReceived(byte[] buffer) {}
 
                 @Override
-                public void onEndOfSpeech() {
-
-                }
+                public void onEndOfSpeech() {}
 
                 @Override
-                public void onError(int error) {
-
-                }
+                public void onError(int error) {}
 
                 @Override
                 public void onResults(Bundle bundle) {
@@ -176,14 +147,10 @@ public class ManageMedicineActivity extends Activity {
                 }
 
                 @Override
-                public void onPartialResults(Bundle partialResults) {
-
-                }
+                public void onPartialResults(Bundle partialResults) {}
 
                 @Override
-                public void onEvent(int eventType, Bundle params) {
-
-                }
+                public void onEvent(int eventType, Bundle params) {}
             });
         }
     }
@@ -197,29 +164,11 @@ public class ManageMedicineActivity extends Activity {
 
     public void replies(String obtainedString){
 
-        int stringLength = obtainedString.length();
+        stringLength = obtainedString.length();
         if(obtainedString.startsWith("medicine name") && !time_set){
-            medicine_name = obtainedString.substring(13, stringLength);
-            name_set = true;
-            mimicOtherMessage("Your medicine name is " + medicine_name + ". Tap and enter the time to take medicine.");
-            mListView.setSelection(mAdapter.getCount() - 1);
-
+            storeMedicineName(obtainedString);
         } else if(obtainedString.startsWith("delete medicine") && !name_set){
-            String delMedicine = obtainedString.substring(15, stringLength);
-            Log.i("delete",delMedicine);
-            List<MedicineWithTime> medDetail = ManageMedicineActivity.myAppDatabase.medicineDAO().findMedicine(delMedicine);
-            if (delMedicine.equals("")){
-                mimicOtherMessage("Mention the name of medicine after command 'Delete medicine'");
-            } else if(!medDetail.isEmpty()){
-                Medicine medicine = medDetail.get(0).getMedicine();
-                ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine(medicine);
-                mimicOtherMessage(delMedicine + " is deleted.");
-                Toast.makeText(getApplicationContext(),"Deleted.",Toast.LENGTH_LONG).show();
-            } else{
-                mimicOtherMessage(delMedicine + " is not found.");
-            }
-            mListView.setSelection(mAdapter.getCount() - 1);
-
+            deleteMedicine(obtainedString);
         } else if(obtainedString.contains("medicine") && !obtainedString.contains("name") && !obtainedString.contains("delete")){
             if(!name_set && obtainedString.contains("view") || obtainedString.contains("display") || obtainedString.contains("read")){
 //                direct to read medicine page
@@ -235,45 +184,10 @@ public class ManageMedicineActivity extends Activity {
                 mimicOtherMessage("Unrecognized command");
                 mListView.setSelection(mAdapter.getCount() - 1);
             }
-        }
-
-
-        else if(obtainedString.contains("a.m.") || obtainedString.contains("p.m") && name_set){
-            TimeValidator timeValidator = new TimeValidator();
-            boolean validate = timeValidator.validate(obtainedString);
-            if(validate){
-                medicine_time.add(obtainedString);
-                MedicineTime medTime = new MedicineTime();
-                medTime.setMedicineTime(obtainedString);
-                store_medicine_time.add(medTime);
-                mimicOtherMessage("Time added as " + obtainedString + ". Add more time by tapping.\n Command \"save\" to save medicine.");
-                time_set = true;
-            } else{
-                mimicOtherMessage("Please enter the valid time.");
-            }
-            mListView.setSelection(mAdapter.getCount() - 1);
-        }
-
-        else if(obtainedString.contains("save")){
-            if(name_set && time_set){
-                Medicine medicine = new Medicine();
-                medicine.setMedicineName(medicine_name);
-                medicine.setMedicineTimes(store_medicine_time);
-                mimicOtherMessage("Medicine Name :"+ medicine_name + "\n Medicine Time: " + medicine_time.get(0));
-                mListView.setSelection(mAdapter.getCount() - 1);
-                ManageMedicineActivity.myAppDatabase.medicineDAO().insertMedicineWithTime(medicine);
-                name_set = false;
-                time_set = false;
-                Toast.makeText(getApplicationContext(),"Insert Successfully!",Toast.LENGTH_LONG).show();
-            }
-            else if(!name_set){
-                mimicOtherMessage("Please enter name and time first.");
-                mListView.setSelection(mAdapter.getCount() - 1);
-            }
-            else {
-                mimicOtherMessage("Please set the time first.");
-                mListView.setSelection(mAdapter.getCount() - 1);
-            }
+        } else if(obtainedString.contains("a.m.") || obtainedString.contains("p.m") && name_set){
+            addMedicineTime(obtainedString);
+        } else if(obtainedString.contains("save")){
+            saveMedicine();
         } else{
             mimicOtherMessage("Unrecognized Command");
             mListView.setSelection(mAdapter.getCount() - 1);
@@ -281,4 +195,93 @@ public class ManageMedicineActivity extends Activity {
 
     }
 
+    public void storeMedicineName(String obtainedString){
+        if (!identifiedMedicine)
+            medicine_name = obtainedString.substring(13, stringLength);
+        else
+            medicine_name = obtainedString;
+        name_set = true;
+        mimicOtherMessage("Your medicine name is " + medicine_name + ". Tap and enter the time to take medicine.");
+        mListView.setSelection(mAdapter.getCount() - 1);
+    }
+
+    public void addMedicineTime(String obtainedString){
+        TimeValidator timeValidator = new TimeValidator();
+        boolean validate = timeValidator.validate(obtainedString);
+        if(validate){
+            medicine_time.add(obtainedString);
+            MedicineTime medTime = new MedicineTime();
+            medTime.setMedicineTime(obtainedString);
+            store_medicine_time.add(medTime);
+            mimicOtherMessage("Time added as " + obtainedString + ". Add more time by tapping.\n Command \"save\" to save medicine.");
+            time_set = true;
+        } else{
+            mimicOtherMessage("Please enter the valid time.");
+        }
+        mListView.setSelection(mAdapter.getCount() - 1);
+    }
+
+    public void saveMedicine(){
+        if(name_set && time_set){
+            Medicine medicine = new Medicine();
+            medicine.setMedicineName(medicine_name);
+            medicine.setMedicineTimes(store_medicine_time);
+            mimicOtherMessage("Medicine Name :"+ medicine_name + "\n Medicine Time: " + medicine_time.get(0));
+            mListView.setSelection(mAdapter.getCount() - 1);
+            ManageMedicineActivity.myAppDatabase.medicineDAO().insertMedicineWithTime(medicine);
+            name_set = false;
+            time_set = false;
+            Toast.makeText(getApplicationContext(),"Insert Successfully!",Toast.LENGTH_LONG).show();
+        }
+        else {
+            mimicOtherMessage("Please set medicine name and time first.");
+            mListView.setSelection(mAdapter.getCount() - 1);
+        }
+    }
+
+    public void deleteMedicine(String obtainedString){
+        if(!identifiedMedicine)
+            medicine_name = obtainedString.substring(15, stringLength);
+        else
+            medicine_name = obtainedString;
+        Log.i("delete",medicine_name);
+        List<MedicineWithTime> medDetail = ManageMedicineActivity.myAppDatabase.medicineDAO().findMedicine(medicine_name);
+        if (medicine_name.equals("")){
+            mimicOtherMessage("Mention the name of medicine after command 'Delete medicine'");
+        } else if(!medDetail.isEmpty()){
+            Medicine medicine = medDetail.get(0).getMedicine();
+            ManageMedicineActivity.myAppDatabase.medicineDAO().deleteMedicine(medicine);
+            mimicOtherMessage(medicine_name + " is deleted.");
+            Toast.makeText(getApplicationContext(),"Deleted.",Toast.LENGTH_LONG).show();
+        } else{
+            mimicOtherMessage(medicine_name + " is not found.");
+        }
+        mListView.setSelection(mAdapter.getCount() - 1);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = getIntent();
+        if(intent.getExtras() != null){
+            medicine_name_received = intent.getExtras().getString("medicine_identified");
+            operation = intent.getExtras().getString("operation");
+            if(medicine_name_received != "") {
+                identifiedMedicine = true;
+                if (operation == "add medicine") {
+                    storeMedicineName(medicine_name_received);
+                } else if (operation == "delete medicine") {
+                    deleteMedicine(medicine_name_received);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mySpeechRecognizer.destroy();
+        if(textToSpeech != null)
+            textToSpeech.stop();
+    }
 }
