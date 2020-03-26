@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -36,41 +37,13 @@ public class ReadMedicine extends AppCompatActivity {
         for (int i = 0; i < medicineWithTimes.size();i++) {
             String medTimes = "";
             for (int j = 0; j < medicineWithTimes.get(i).getMedicineTimes().size(); j++){
-                medTimes = medTimes + medicineWithTimes.get(i).getMedicineTimes().get(j).getMedicineTime()+"\n";
+                medTimes = medTimes + medicineWithTimes.get(i).getMedicineTimes().get(j).getMedicineTime()+"  ";
             }
-            medicineDetails.add(new MedicineDetail(medTimes,medicineWithTimes.get(i).getMedicine().getMedicineName()));
+            String medName = medicineWithTimes.get(i).getMedicine().getMedicineName();
+            medicineDetails.add(new MedicineDetail(medTimes,medName.substring(0,1).toUpperCase()+medName.substring(1)));
         }
         //create adapter and display all the details in the card layout
         MedicineDisplayAdapter adapter = new MedicineDisplayAdapter(this, medicineDetails);
         recyclerView.setAdapter(adapter);
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//        for (int z = 0; z < medicineWithTimes.size();z++){
-//            Log.i("Medicine With Time",z +". "+medicineWithTimes.get(z).getMedicine().getMedicineName());
-//        }
-//
-//        int k = medicineWithTimes.size() - 1;
-//        Log.i("Last",medicineWithTimes.get(k).getMedicineTimes().get(0).getNameOfMedicine()+" "+
-//                medicineWithTimes.get(k).getMedicineTimes().get(0).getMedicineTime());

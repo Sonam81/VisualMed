@@ -96,9 +96,9 @@ public class MedicineDisplayAdapter extends RecyclerView.Adapter<MedicineDisplay
                     String medicineName = medicine.getMedicineName();
                     String medicineTime = "";
                     for (int i = 0; i < medicineWithTimes.get(position).getMedicineTimes().size(); i++){
-                        medicineTime = medicineTime + medicineWithTimes.get(position).getMedicineTimes().get(i).getMedicineTime()+" ";
+                        medicineTime = medicineTime + medicineWithTimes.get(position).getMedicineTimes().get(i).getMedicineTime()+" . ";
                     }
-                    speak("Medicine Name:"+medicineName+ " Medicine Time:"+ medicineTime);
+                    speak("Your medicine Name is "+medicineName+ ". And the time "+ medicineTime);
                 }
             });
 

@@ -1,13 +1,12 @@
 package com.example.visualmed;
 
 public class ChatMessage {
-    private boolean isImage, isMine;
+    private boolean isMine;
     private String content;
 
-    public ChatMessage(String message, boolean mine, boolean image) {
+    public ChatMessage(String message, boolean mine) {
         content = message;
         isMine = mine;
-        isImage = image;
     }
 
     public String getContent() {
@@ -26,11 +25,4 @@ public class ChatMessage {
         this.isMine = isMine;
     }
 
-    public boolean isImage() {
-        return isImage;
-    }
-
-    public void setIsImage(boolean isImage) {
-        this.isImage = isImage;
-    }
 }

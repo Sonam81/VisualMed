@@ -12,15 +12,18 @@ import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.annotation.RequiresApi;
 import androidx.room.Room;
 
-public class ManageMedicineActivity extends Activity {
+public class ManageMedicineActivity extends Activity{
 
     public static MyAppDatabase myAppDatabase;
     private SpeechRecognizer mySpeechRecognizer;
@@ -49,6 +52,14 @@ public class ManageMedicineActivity extends Activity {
         mListView = findViewById(R.id.listView);
         mAdapter = new ChatMessageAdapter(this, new ArrayList<ChatMessage>());
         mListView.setAdapter(mAdapter);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                clickLayout(view);
+                Toast.makeText(ManageMedicineActivity.this, "This is it", Toast.LENGTH_SHORT).show();
+            }
+        });
         initializeTextToSpeech();
         initializeSpeechRecognizer();
 
@@ -58,6 +69,7 @@ public class ManageMedicineActivity extends Activity {
 
         mListView.setSelection(mAdapter.getCount() - 1);
     }
+
 
     public void speak(String message){
         if(Build.VERSION.SDK_INT >= 21){
@@ -69,14 +81,12 @@ public class ManageMedicineActivity extends Activity {
     }
 
     private void sendMessage(String message) {
-        ChatMessage chatMessage = new ChatMessage(message, true, false);
+        ChatMessage chatMessage = new ChatMessage(message, true);
         mAdapter.add(chatMessage);
-
-        //mimicOtherMessage(message);
     }
 
     private void mimicOtherMessage(String message) {
-        ChatMessage chatMessage = new ChatMessage(message, false, false);
+        ChatMessage chatMessage = new ChatMessage(message, false);
         mAdapter.add(chatMessage);
         speak(message);
     }
@@ -159,20 +169,16 @@ public class ManageMedicineActivity extends Activity {
 
     public void replies(String obtainedString){
         stringLength = obtainedString.length();
-        if(obtainedString.startsWith("medicine name") && !time_set)
+        if(obtainedString.startsWith("add medicine") && !time_set && stringLength > 12)
             storeMedicineName(obtainedString);
 
         else if(obtainedString.startsWith("delete medicine") && !name_set)
             deleteMedicine(obtainedString);
-        else if(obtainedString.contains("medicine") && !obtainedString.contains("name") && !obtainedString.contains("delete")){
+        else if(obtainedString.contains("medicine") && !obtainedString.contains("add") && !obtainedString.contains("delete")){
             if(!name_set && obtainedString.contains("view") || obtainedString.contains("display") || obtainedString.contains("read")){
 //                direct to read medicine page
                 Intent readMedicineActivity = new Intent(ManageMedicineActivity.this, ReadMedicine.class);
                 startActivity(readMedicineActivity);
-            } else if(!name_set && obtainedString.contains("add")){
-                //cannot perform task
-                mimicOtherMessage("You are currently on add medicine page.");
-                mListView.setSelection(mAdapter.getCount() - 1);
             } else unrecognizedCommand();
         }
         else if(obtainedString.contains("a.m.") || obtainedString.contains("p.m") && name_set)
@@ -189,18 +195,11 @@ public class ManageMedicineActivity extends Activity {
     }
 
     public void storeMedicineName(String obtainedString){
-        String text = obtainedString.substring(13);
-        if (!identifiedMedicine && text.equals("")) {
-            unrecognizedCommand();
-        }
-        else if(identifiedMedicine){
-            medicine_name = obtainedString;
-        }
-        else{
-            medicine_name = text;
-        }
+        String text = obtainedString.substring(13).trim();
+        if(identifiedMedicine) medicine_name = obtainedString;
+        else medicine_name = text;
         name_set = true;
-        mimicOtherMessage("Your medicine name is " + medicine_name + ". Tap and enter the time to take medicine.");
+        mimicOtherMessage("Your medicine name is " + medicine_name.substring(0,1).toUpperCase()+medicine_name.substring(1) + ". Tap and enter the time to take medicine.");
         mListView.setSelection(mAdapter.getCount() - 1);
     }
 
@@ -269,9 +268,9 @@ public class ManageMedicineActivity extends Activity {
 
     public void deleteMedicine(String obtainedString){
         if(!identifiedMedicine)
-            medicine_name = obtainedString.substring(15, stringLength);
+            medicine_name = obtainedString.substring(16, stringLength);
         else
-            medicine_name = obtainedString;
+            medicine_name = obtainedString.trim();
         Log.i("delete",medicine_name);
         List<MedicineWithTime> medDetail = ManageMedicineActivity.myAppDatabase.medicineDAO().findMedicine(medicine_name);
         if (medicine_name.equals("")){
