@@ -16,10 +16,23 @@ import android.widget.Toast;
 public class TtsService extends Service {
 
     TextToSpeech textToSpeech;
-    IBinder mBinder = new LocalBinder();
+    IBinder binder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        public TtsService getServerInstance() {
+            return TtsService.this;
+        }
+    }
+
     @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Toast.makeText(this, "Started Service", Toast.LENGTH_SHORT).show();
+        return START_STICKY;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent){
+        return binder;
     }
 
     @Override
@@ -45,17 +58,6 @@ public class TtsService extends Service {
         });
     }
 
-    @Override
-    public void onStart(Intent intent, int startId){
-        Log.i("Service","onStart_service");
-        super.onStart(intent,startId);
-    }
-
-    public class LocalBinder extends Binder {
-        public TtsService getServerInstance() {
-            return TtsService.this;
-        }
-    }
     public void speak(String message){
         if(Build.VERSION.SDK_INT >= 21){
             textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH,null, null);

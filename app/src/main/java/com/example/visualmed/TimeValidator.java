@@ -1,23 +1,29 @@
 package com.example.visualmed;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TimeValidator{
+public class TimeValidator {
 
-    private Pattern pattern;
-    private Matcher matcher;
+    private static Matcher matcher;
+    private static Pattern pattern;
 
     private static final String timeFormat = "(1[012]|[1-9]):[0-5][0-9](\\s)?(?i)(a.m.|p.m.)";
 
-    public TimeValidator(){
+    public TimeValidator() {
         pattern = Pattern.compile(timeFormat);
     }
 
-    public boolean validate(final String time){
+    public static boolean validate(final String time) {
         matcher = pattern.matcher(time);
-        return matcher.matches();
+        boolean match = matcher.matches();
+        return match;
     }
+
 }
 
 //References:

@@ -1,14 +1,21 @@
 package com.example.visualmed;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.util.Log;
 import android.widget.Toast;
 
 public class AlertReciever extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "Alarm Triggered", Toast.LENGTH_SHORT).show();
-
+    MediaPlayer mediaPlayer;
+    public void onReceive (Context context , Intent intent) {
+        mediaPlayer = MediaPlayer.create(context,R.raw.beep);
+        mediaPlayer.start();
+        Log.i("Triggerd","Triggered");
+        Toast.makeText(context,"ALarm Triggered",Toast.LENGTH_LONG).show();
     }
 }

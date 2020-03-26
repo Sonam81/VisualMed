@@ -98,10 +98,7 @@ public class MedicineDisplayAdapter extends RecyclerView.Adapter<MedicineDisplay
                     for (int i = 0; i < medicineWithTimes.get(position).getMedicineTimes().size(); i++){
                         medicineTime = medicineTime + medicineWithTimes.get(position).getMedicineTimes().get(i).getMedicineTime()+" ";
                     }
-                    speak("Medicine Name:"+medicineName+ "Medicine Time:"+ medicineTime);
-                    Snackbar.make(v, "Click detected on item " + position,
-                            Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    speak("Medicine Name:"+medicineName+ " Medicine Time:"+ medicineTime);
                 }
             });
 

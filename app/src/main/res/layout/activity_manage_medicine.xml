@@ -10,6 +10,7 @@
     android:orientation="vertical"
     tools:context="com.example.visualmed.ManageMedicineActivity"
     android:focusable="true"
+    android:background="#aaf"
     android:id="@+id/linearLayout1"
     android:onClick="clickLayout">
 
@@ -17,8 +18,9 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="434dp"
         android:clickable="false"
+        android:background="#fff"
         android:divider="#fff" />
 
 </LinearLayout>
