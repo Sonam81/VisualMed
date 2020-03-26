@@ -11,31 +11,43 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/colorMyCommand"
             android:padding="8dp">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/item_image"
+                android:src="@drawable/ic_access_alarm_black_24dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp" />
 
             <TextView
                 android:id="@+id/textMedicineName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_toEndOf="@+id/item_image"
+                android:layout_toRightOf="@+id/item_image"
+                android:layout_alignParentTop="true"
+                android:textColor="#FFF"
                 android:text="Medicine Name Sample"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="#000000"
                 android:textSize="18sp" />
+
 
             <TextView
                 android:id="@+id/textMedicineTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/textMedicineName"
-                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/item_image"
                 android:layout_marginTop="5dp"
                 android:text="12:00 pm"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="#000000"
-                android:textSize="14sp" />
-
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"/>
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
