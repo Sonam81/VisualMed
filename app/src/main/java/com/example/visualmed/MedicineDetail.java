@@ -6,10 +6,12 @@ public class MedicineDetail {
 
     private String medicineName;
     private String medicineTime;
+    private int medicineAlarmId;
 
-    public MedicineDetail(String medicineName, String medicineTime) {
+    public MedicineDetail(String medicineName, String medicineTime, int medicineAlarmId) {
         this.medicineName = medicineName;
         this.medicineTime = medicineTime;
+        this.medicineAlarmId = medicineAlarmId;
     }
 
     public String getMedicineName() {
@@ -26,5 +28,13 @@ public class MedicineDetail {
 
     public void setMedicineTime(String medicineTime) {
         this.medicineTime = medicineTime;
+    }
+
+    public int getMedicineAlarmId() {
+        return medicineAlarmId;
+    }
+
+    public void setMedicineAlarmId(int medicineAlarmId) {
+        this.medicineAlarmId = medicineAlarmId;
     }
 }

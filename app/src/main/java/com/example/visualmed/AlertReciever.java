@@ -1,8 +1,5 @@
 package com.example.visualmed;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +10,7 @@ import android.widget.Toast;
 public class AlertReciever extends BroadcastReceiver {
     MediaPlayer mediaPlayer;
     public void onReceive (Context context , Intent intent) {
-        mediaPlayer = MediaPlayer.create(context,R.raw.beep);
+        mediaPlayer = MediaPlayer.create(context,R.raw.jungle);
         mediaPlayer.start();
         Log.i("Triggerd","Triggered");
         Toast.makeText(context,"ALarm Triggered",Toast.LENGTH_LONG).show();

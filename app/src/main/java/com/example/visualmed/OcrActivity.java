@@ -26,8 +26,8 @@ public class OcrActivity extends AppCompatActivity {
     TextView mTextView;
     CameraSource mCameraSource;
     String speech = "The Answer to the Great Question... Of Life, " +
-                "the Universe and Everything... Is... Forty-two,' said " +
-                "Deep Thought, with infinite Aspirin and calm Carboplatin."; //Test string
+            "the Universe and ... Is... Forty-two,' said " +
+            "Deep Thought, with infinite Aspirin and calm Carboplatin."; //Test string
 
 
     private static final String TAG = "OcrActivity";
@@ -42,14 +42,18 @@ public class OcrActivity extends AppCompatActivity {
         mTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCameraSource.stop();
-                Intent intent = new Intent(OcrActivity.this, IdentifyMedicine.class);
-                intent.putExtra("detail",detail);
-                startActivity(intent);
+                clickedImage(v);
             }
         });
 
         startCameraSource();
+    }
+
+    public void clickedImage(View v){
+        mCameraSource.stop();
+        Intent intent = new Intent(OcrActivity.this, IdentifyMedicine.class);
+        intent.putExtra("detail",speech);
+        startActivity(intent);
     }
 
 
@@ -127,4 +131,4 @@ public class OcrActivity extends AppCompatActivity {
         }
 
     }
-    }
+}

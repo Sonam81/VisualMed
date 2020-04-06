@@ -10,6 +10,7 @@ tools:context=".OcrActivity">
     android:id="@+id/surfaceView"
     android:layout_width="match_parent"
     android:layout_height="0dp"
+    android:onClick="clickedImage"
     android:layout_weight="4" />
 <TextView
     android:id="@+id/text_view"

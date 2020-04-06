@@ -15,7 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ManageMedicineActivity"/>
+        <activity android:name=".SplashActivity" />
         <activity android:name=".IdentifyMedicine" />
         <activity android:name=".DeleteMedicine" />
         <activity android:name=".ReadMedicine" />
@@ -29,14 +29,19 @@
                 android:value="ocr" />
         </activity>
         <activity android:name=".Alarm" />
-        <activity android:name=".SplashActivity">
+        <activity android:name=".ManageMedicineActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".AppIntro"
+            android:label="App Intro" />
+
         <receiver android:name=".AlertReciever" />
+
         <service android:name=".TtsService" />
 
         <meta-data

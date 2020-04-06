@@ -6,17 +6,19 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "medicine_time")
 public class MedicineTime {
 
-    @PrimaryKey(autoGenerate = true) public int id;
+    @PrimaryKey
+    private int medicineAlarmId;
     private String medicineTime;
     private String nameOfMedicine;
 
-    public int getId() {
-        return id;
+    public int getMedicineAlarmId() {
+        return medicineAlarmId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setMedicineAlarmId(int medicineAlarmId) {
+        this.medicineAlarmId = medicineAlarmId;
     }
+
 
     public String getMedicineTime() {
         return medicineTime;

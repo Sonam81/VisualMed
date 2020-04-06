@@ -29,4 +29,5 @@ public class MedicineWithTime {
     public void setMedicineTimes(List<MedicineTime> medicineTimes) {
         this.medicineTimes = medicineTimes;
     }
+
 }

@@ -19,8 +19,6 @@ public class Medicine {
     private List<MedicineTime> medicineTimes;
 
 
-
-
     public String getMedicineName() {
         return medicineName;
     }
@@ -36,5 +34,4 @@ public class Medicine {
     public void setMedicineTimes(List<MedicineTime> medicineTimes) {
         this.medicineTimes = medicineTimes;
     }
-
 }

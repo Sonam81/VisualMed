@@ -36,11 +36,13 @@ public class ReadMedicine extends AppCompatActivity {
         medicineDetails = new ArrayList<>();
         for (int i = 0; i < medicineWithTimes.size();i++) {
             String medTimes = "";
+            String medAlarmIds = "";
             for (int j = 0; j < medicineWithTimes.get(i).getMedicineTimes().size(); j++){
                 medTimes = medTimes + medicineWithTimes.get(i).getMedicineTimes().get(j).getMedicineTime()+"  ";
+                medAlarmIds = medAlarmIds + medicineWithTimes.get(i).getMedicineTimes().get(j).getMedicineAlarmId();
             }
             String medName = medicineWithTimes.get(i).getMedicine().getMedicineName();
-            medicineDetails.add(new MedicineDetail(medTimes,medName.substring(0,1).toUpperCase()+medName.substring(1)));
+            medicineDetails.add(new MedicineDetail(medTimes,medName.substring(0,1).toUpperCase()+medName.substring(1),0000));
         }
         //create adapter and display all the details in the card layout
         MedicineDisplayAdapter adapter = new MedicineDisplayAdapter(this, medicineDetails);

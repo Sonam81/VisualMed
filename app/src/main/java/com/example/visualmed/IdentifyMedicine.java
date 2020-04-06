@@ -38,6 +38,7 @@ public class IdentifyMedicine extends AppCompatActivity {
     String information = "";
     ArrayList<String> userList;
     TextView textView;
+    TextView identifyCommandTextView;
     String medicine_name = "";
     TextToSpeech textToSpeech;
     final String TAG = "medicine_identified";
@@ -48,6 +49,7 @@ public class IdentifyMedicine extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_identify_medicine);
         textView = findViewById(R.id.identifyMedicineTextView);
+        identifyCommandTextView = findViewById(R.id.identifyCommand);
         initializeTextToSpeech();
         initializeSpeechRecognizer();
 
@@ -116,6 +118,7 @@ public class IdentifyMedicine extends AppCompatActivity {
 
     public void processResult(String command) {
         command = command.toLowerCase();
+        identifyCommandTextView.setText(command);
         if(command.startsWith("add medicine")){
             Intent intent = new Intent(IdentifyMedicine.this, ManageMedicineActivity.class);
             intent.putExtra(TAG,medicine_name);
@@ -137,13 +140,10 @@ public class IdentifyMedicine extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         Intent intent = getIntent();
-        information = intent.getExtras().getString("detail");
-        if(!information.equals("")){
-            String finalInformation = information.replaceAll("\\s", "").toLowerCase();
-            System.out.println("THis is the final information ............ "+finalInformation);
-        }
-        else{
-            System.out.println("Empty");
+        try {
+            information = intent.getExtras().getString("detail");
+        } catch (NullPointerException e){
+            speak("Medicine string unavailable");
         }
     }
 
@@ -153,9 +153,16 @@ public class IdentifyMedicine extends AppCompatActivity {
                 .build();
 
         Emit firstMatch = trie.firstMatch(details);
-        medicine_name = firstMatch.getKeyword();
-        textView.setText(medicine_name);
-        speak(medicine_name);
+        try{
+            medicine_name = firstMatch.getKeyword();
+            String med = medicine_name.substring(0,1).toUpperCase()+medicine_name.substring(1);
+            textView.setText(med);
+            speak(medicine_name);
+        } catch (NullPointerException e){
+            speak("Medicine name not found.");
+            System.out.println(e.getMessage());
+        }
+
     }
 
     public void identifyClick(View view){
