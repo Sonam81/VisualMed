@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:icon="@drawable/app_intro_help_icon"
+        android:key="app_intro"
+        android:summary="Display app introduction when app open."
+        android:title="App Introduction" />
+</PreferenceScreen>

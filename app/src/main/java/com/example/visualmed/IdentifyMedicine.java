@@ -22,11 +22,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.ahocorasick.trie.Emit;
-import org.ahocorasick.trie.Token;
 import org.ahocorasick.trie.Trie;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,7 +34,7 @@ public class IdentifyMedicine extends AppCompatActivity {
     SpeechRecognizer mySpeechRecognizer;
     Intent speechIntent;
     String information = "";
-    ArrayList<String> userList;
+    ArrayList<String> medicineList;
     TextView textView;
     TextView identifyCommandTextView;
     String medicine_name = "";
@@ -51,22 +49,17 @@ public class IdentifyMedicine extends AppCompatActivity {
         textView = findViewById(R.id.identifyMedicineTextView);
         identifyCommandTextView = findViewById(R.id.identifyCommand);
         initializeTextToSpeech();
-        initializeSpeechRecognizer();
 
-        speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
-
-
-        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference().child(databaseChild);
+        DatabaseReference databaseReference= FirebaseDatabase.getInstance()
+											.getReference().child(databaseChild);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                userList = new ArrayList<>();
+                medicineList = new ArrayList<>();
                 for (DataSnapshot dsp : dataSnapshot.getChildren()) {
                     Map map = (Map) dsp.getValue();
-                    userList.add(String.valueOf(map.get("medicine_name"))); //add result into array list
-//                    System.out.println(userList.toString());
+					//add result into array list
+                    medicineList.add(String.valueOf(map.get("medicine_name"))); 
                 }
                 ahoSearch(information);
             }
@@ -76,43 +69,25 @@ public class IdentifyMedicine extends AppCompatActivity {
         });
     }
 
+    private void startSpeechRecognizer() {
+        Intent intent = new Intent
+                (RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        startActivityForResult(intent, 3000);
+    }
 
-    public void initializeSpeechRecognizer() {
-        if (SpeechRecognizer.isRecognitionAvailable(this)) {
-            mySpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-            mySpeechRecognizer.setRecognitionListener(new RecognitionListener() {
-                @Override
-                public void onReadyForSpeech(Bundle params) {}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-                @Override
-                public void onBeginningOfSpeech() {}
-
-                @Override
-                public void onRmsChanged(float rmsdB) {}
-
-                @Override
-                public void onBufferReceived(byte[] buffer) {}
-
-                @Override
-                public void onEndOfSpeech() {}
-
-                @Override
-                public void onError(int error) {}
-
-                @Override
-                public void onResults(Bundle bundle) {
-                    List<String> results = bundle.getStringArrayList(
-                            SpeechRecognizer.RESULTS_RECOGNITION
-                    );
-                    processResult(results.get(0));
-                }
-
-                @Override
-                public void onPartialResults(Bundle partialResults) {}
-
-                @Override
-                public void onEvent(int eventType, Bundle params) {}
-            });
+        if (requestCode == 3000) {
+            if (resultCode == RESULT_OK) {
+                List<String> results = data.getStringArrayListExtra
+                        (RecognizerIntent.EXTRA_RESULTS);
+                processResult(results.get(0));
+            }
         }
     }
 
@@ -149,7 +124,7 @@ public class IdentifyMedicine extends AppCompatActivity {
 
     public void ahoSearch(String details){
         Trie trie = Trie.builder().ignoreOverlaps().onlyWholeWords().ignoreCase()
-                .addKeywords(userList)
+                .addKeywords(medicineList)
                 .build();
 
         Emit firstMatch = trie.firstMatch(details);
@@ -167,9 +142,8 @@ public class IdentifyMedicine extends AppCompatActivity {
 
     public void identifyClick(View view){
 //        speak(medicine_name + " Command add medicine or remove medicine to add or remove this medicine from your list.");
-        mySpeechRecognizer.startListening(speechIntent);
-
-        }
+        startSpeechRecognizer();
+    }
 
     public void speak(String message){
         if(Build.VERSION.SDK_INT >= 21){
@@ -201,4 +175,23 @@ public class IdentifyMedicine extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        textToSpeech.stop();
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        textToSpeech.stop();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        textToSpeech.stop();
+    }
 }

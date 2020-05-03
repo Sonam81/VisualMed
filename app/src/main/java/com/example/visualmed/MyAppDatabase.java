@@ -12,4 +12,3 @@ public abstract class MyAppDatabase extends RoomDatabase {
 
     public abstract MedicineDAO medicineDAO();
 }
-

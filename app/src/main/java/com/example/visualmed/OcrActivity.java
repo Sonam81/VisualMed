@@ -25,9 +25,7 @@ public class OcrActivity extends AppCompatActivity {
     SurfaceView mCameraView;
     TextView mTextView;
     CameraSource mCameraSource;
-    String speech = "The Answer to the Great Question... Of Life, " +
-            "the Universe and ... Is... Forty-two,' said " +
-            "Deep Thought, with infinite Aspirin and calm Carboplatin."; //Test string
+    String speech = ""; //Test string
 
 
     private static final String TAG = "OcrActivity";
@@ -114,15 +112,16 @@ public class OcrActivity extends AppCompatActivity {
                         mTextView.post(new Runnable() {
                             @Override
                             public void run() {
-                                StringBuilder stringBuilder = new StringBuilder();
+                                StringBuilder boxString = new StringBuilder();
                                 for (int i = 0; i < items.size(); i++) {
                                     TextBlock item = items.valueAt(i);
-                                    stringBuilder.append(item.getValue());
-                                    stringBuilder.append("\n");
+                                    boxString.append(item.getValue());
+                                    boxString.append("\n");
                                 }
-                                detail = stringBuilder.toString();
+                                detail = boxString.toString();
                                 Log.i("detail",detail);
-                                mTextView.setText(stringBuilder.toString());
+                                mTextView.setText(boxString.toString());
+                                speech = boxString.toString();
                             }
                         });
                     }

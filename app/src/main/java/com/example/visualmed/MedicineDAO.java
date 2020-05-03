@@ -25,6 +25,9 @@ public abstract class MedicineDAO {
     @Delete
     public abstract void deleteMedicine(Medicine medicine);
 
+    @Delete
+    public abstract void deleteTime(List<MedicineTime> medicineTimes);
+
     @Transaction
     public void insertMedicineWithTime(Medicine medicine) {
         List<MedicineTime> medicineTimes = medicine.getMedicineTimes();

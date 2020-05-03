@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppTheme"
     android:gravity="center">
 
     <EditText
@@ -38,7 +39,7 @@
     <Button
         android:id="@+id/b1"
         android:layout_width="160dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
         android:layout_marginLeft="18dp"
         android:layout_marginBottom="262dp"

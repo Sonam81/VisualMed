@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CodeComments">
+    <comments>
+      <comment>
+        <place path="app/src/main/java/com/example/visualmed/ManageMedicineActivity.java" from="10182" to="10364" />
+        <text>public void storeMedicineName(String medName){
+        if(!identifiedMedicine) {
+            String text = medName.substring(13).trim();
+            medicine_name = text;
+        }</text>
+        <data>nepa</data>
+      </comment>
+    </comments>
+  </component>
+</project>

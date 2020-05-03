@@ -6,53 +6,48 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".App"
         android:allowBackup="true"
         android:icon="@drawable/icon2"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".ManageMedicineActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ManageMedicineActivity"
+            />
+        </activity>
+
         <activity android:name=".SplashActivity" />
         <activity android:name=".IdentifyMedicine" />
-        <activity android:name=".DeleteMedicine" />
         <activity android:name=".ReadMedicine" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".AddMedicineTime" />
-        <activity android:name=".AddMedicineDose" />
-        <activity android:name=".AddMedicine" />
+        <activity android:name=".ManageMedicineActivity" />
         <activity android:name=".OcrActivity">
             <meta-data
                 android:name="com.google.android.gms.vision.DEPENDENCIES"
                 android:value="ocr" />
         </activity>
-        <activity android:name=".Alarm" />
-        <activity android:name=".ManageMedicineActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".AppIntro"
+        <activity
+            android:name=".AppIntro"
             android:label="App Intro" />
 
-        <receiver android:name=".AlertReciever" />
+        <receiver android:name=".AlertReceiver" />
 
-        <service android:name=".TtsService" />
+        <uses-library android:name="android.test.runner"/>
 
-        <meta-data
-            android:name="com.parse.SERVER_URL"
-            android:value="@string/back4app_server_url" />
-        <meta-data
-            android:name="com.parse.APPLICATION_ID"
-            android:value="@string/back4app_app_id" />
-        <meta-data
-            android:name="com.parse.CLIENT_KEY"
-            android:value="@string/back4app_client_key" />
     </application>
 
 </manifest>

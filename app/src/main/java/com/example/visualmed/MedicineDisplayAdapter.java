@@ -90,9 +90,8 @@ public class MedicineDisplayAdapter extends RecyclerView.Adapter<MedicineDisplay
                     int position = getAdapterPosition();
                     List<MedicineWithTime> medicineWithTimes;
                     medicineWithTimes = ManageMedicineActivity.myAppDatabase.medicineDAO().getAll();
-
-//                    Medicine medicine = ManageMedicineActivity.myAppDatabase.medicineDAO().getAll().get(position).getMedicine();
                     Medicine medicine = medicineWithTimes.get(position).getMedicine();
+
                     String medicineName = medicine.getMedicineName();
                     String medicineTime = "";
                     for (int i = 0; i < medicineWithTimes.get(position).getMedicineTimes().size(); i++){

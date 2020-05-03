@@ -3,6 +3,7 @@ package com.example.visualmed;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public class ReadMedicine extends AppCompatActivity {
 
+    public static MyAppDatabase myAppDatabase;
     //stores medicines name and times
     List<MedicineDetail> medicineDetails;
     RecyclerView recyclerView;
@@ -22,6 +24,8 @@ public class ReadMedicine extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_medicine);
+
+        myAppDatabase = Room.databaseBuilder(getApplicationContext(),MyAppDatabase.class,"medicineDB").allowMainThreadQueries().fallbackToDestructiveMigration().build();
 
         //get recycler view by id
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
